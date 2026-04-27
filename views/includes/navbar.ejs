@@ -1,0 +1,87 @@
+<nav class="wander-nav">
+    <div class="nav-inner">
+        <!-- Logo -->
+        <a class="nav-logo" href="/listings">
+            <i class="fa-solid fa-compass"></i>
+            <span>Wander</span>
+        </a>
+
+        <!-- Center Search -->
+        <form class="nav-search" action="/listings" method="GET" role="search">
+            <input class="search-input" type="search" name="search" placeholder="Search destinations, countries…" value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
+            <button class="search-btn" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+
+        <!-- Right Links -->
+        <div class="nav-right">
+            <% if(!currUser) { %>
+                <a class="nav-link" href="/listings/new">List your property</a>
+                <a class="btn-outline-nav" href="/signup">Sign up</a>
+                <a class="btn-filled-nav" href="/login">Log in</a>
+            <% } else { %>
+                <% if(currUser.role === 'admin') { %>
+                    <a class="nav-link admin-badge" href="/listings/admin/dashboard">
+                        <i class="fa-solid fa-shield-halved me-1"></i>Admin
+                    </a>
+                <% } %>
+                <a class="nav-link" href="/listings/new">List property</a>
+                <div class="nav-user-menu">
+                    <button class="user-avatar-btn" id="userMenuBtn">
+                        <div class="avatar-circle"><%= currUser.username.charAt(0).toUpperCase() %></div>
+                        <span class="avatar-name"><%= currUser.username %></span>
+                        <i class="fa-solid fa-chevron-down avatar-caret"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-user-info">
+                            <div class="dropdown-avatar"><%= currUser.username.charAt(0).toUpperCase() %></div>
+                            <div>
+                                <div class="dropdown-username"><%= currUser.username %></div>
+                                <div class="dropdown-role"><%= currUser.role === 'admin' ? '⚡ Administrator' : 'Member' %></div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <% if(currUser.role === 'admin') { %>
+                            <a class="dropdown-item" href="/listings/admin/dashboard"><i class="fa-solid fa-gauge me-2"></i>Admin Dashboard</a>
+                            <a class="dropdown-item" href="/admin/bookings"><i class="fa-solid fa-calendar-check me-2"></i>Manage Bookings</a>
+                        <% } else { %>
+                            <a class="dropdown-item" href="/bookings/user"><i class="fa-solid fa-calendar me-2"></i>My Bookings</a>
+                        <% } %>
+                        <a class="dropdown-item" href="/listings/new"><i class="fa-solid fa-plus me-2"></i>New Listing</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item dropdown-logout" href="/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Mobile Hamburger -->
+        <button class="hamburger" id="mobileMenuBtn">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <form class="mobile-search" action="/listings" method="GET">
+            <input type="search" name="search" placeholder="Search destinations…">
+            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+        <% if(!currUser) { %>
+            <a href="/signup">Sign Up</a>
+            <a href="/login">Log In</a>
+            <a href="/listings/new">List Property</a>
+        <% } else { %>
+            <div class="mobile-user">Logged in as <strong><%= currUser.username %></strong></div>
+            <% if(currUser.role === 'admin') { %>
+                <a href="/listings/admin/dashboard">Admin Dashboard</a>
+                <a href="/admin/bookings">Manage Bookings</a>
+            <% } else { %>
+                <a href="/bookings/user">My Bookings</a>
+            <% } %>
+            <a href="/listings/new">List Property</a>
+            <a href="/logout">Logout</a>
+        <% } %>
+    </div>
+</nav>

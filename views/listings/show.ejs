@@ -1,0 +1,267 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="show-page">
+    <!-- Admin Action Bar -->
+    <% if(currUser && currUser.role === 'admin') { %>
+        <div class="admin-action-bar">
+            <div>
+                <div class="admin-bar-label"><i class="fa-solid fa-shield-halved"></i> Admin Controls</div>
+                <div class="admin-bar-title">Manage this listing as administrator</div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <% if(!listing.isVerified) { %>
+                    <form method="POST" action="/listings/<%= listing._id %>/verify">
+                        <button class="btn-success-wander" type="submit">
+                            <i class="fa-solid fa-circle-check"></i> Verify Listing
+                        </button>
+                    </form>
+                <% } else { %>
+                    <form method="POST" action="/listings/<%= listing._id %>/unverify">
+                        <button class="btn-warning-wander" type="submit">
+                            <i class="fa-solid fa-circle-xmark"></i> Unverify
+                        </button>
+                    </form>
+                <% } %>
+                <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this listing?')">
+                    <button class="btn-danger-wander" type="submit">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    <% } %>
+
+    <img src="<%= listing.image.url %>" class="show-img" alt="<%= listing.title %>">
+
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:8px;">
+        <h1 class="show-title"><%= listing.title %></h1>
+        <% if(listing.isVerified) { %>
+            <div class="listing-verified-badge" style="font-size:0.82rem;padding:5px 12px;">
+                <i class="fa-solid fa-circle-check"></i> Verified by Wander
+            </div>
+        <% } else { %>
+            <div class="listing-pending-badge" style="font-size:0.82rem;padding:5px 12px;">
+                <i class="fa-solid fa-clock"></i> Pending Verification
+            </div>
+        <% } %>
+    </div>
+
+    <p class="show-host">Hosted by <strong><%= listing.owner.username %></strong></p>
+
+    <p class="show-description"><%= listing.description %></p>
+
+    <div class="show-details-grid">
+        <div class="show-price">
+            <div class="show-detail-label">Price per night</div>
+            <div class="show-detail-value">₹<%= listing.price.toLocaleString("en-IN") %></div>
+        </div>
+        <div>
+            <div class="show-detail-label">Location</div>
+            <div class="show-detail-value" style="font-size:1rem;"><%= listing.location %>, <%= listing.country %></div>
+        </div>
+    </div>
+
+    <!-- Owner Actions -->
+    <% if(currUser && currUser._id.equals(listing.owner._id) && currUser.role !== 'admin') { %>
+        <div class="show-actions">
+            <a href="/listings/<%= listing._id %>/edit" class="btn-primary-wander">
+                <i class="fa-solid fa-pen"></i> Edit Listing
+            </a>
+            <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" onsubmit="return confirm('Delete this listing?')">
+                <button class="btn-danger-wander" type="submit">
+                    <i class="fa-solid fa-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    <% } %>
+
+    <!-- Booking Actions for Regular Users -->
+    <% if(currUser && currUser.role !== 'admin' && !currUser._id.equals(listing.owner._id) && listing.isVerified) { %>
+        <div class="booking-actions">
+            <div class="booking-card">
+                <div class="booking-price-info">
+                    <div class="price-per-night">$<%= listing.price %></div>
+                    <div class="price-label">per night</div>
+                </div>
+                <a href="/listings/<%= listing._id %>/book" class="btn-book-now">
+                    <i class="fa-solid fa-calendar-check me-2"></i>Book Now
+                </a>
+                <div class="booking-info">
+                    <p class="booking-notice">
+                        <i class="fa-solid fa-info-circle me-2"></i>
+                        Instant confirmation • Free cancellation
+                    </p>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Login prompt for booking -->
+    <% if(!currUser && listing.isVerified) { %>
+        <div class="booking-prompt">
+            <div class="booking-card">
+                <div class="booking-price-info">
+                    <div class="price-per-night">$<%= listing.price %></div>
+                    <div class="price-label">per night</div>
+                </div>
+                <a href="/login" class="btn-book-now">
+                    <i class="fa-solid fa-sign-in-alt me-2"></i>Log in to Book
+                </a>
+                <div class="booking-info">
+                    <p class="booking-notice">
+                        <i class="fa-solid fa-lock me-2"></i>
+                        Sign in to book this property
+                    </p>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    <hr class="section-divider">
+
+    <!-- Review Form -->
+    <% if(currUser) { %>
+        <div class="review-form-card">
+            <h2 class="section-title" style="margin-bottom:20px;">Leave a Review</h2>
+            <form action="/listings/<%= listing.id %>/reviews" method="POST" class="needs-validation" novalidate>
+                <div class="form-group">
+                    <label class="form-label">Rating</label>
+                    <fieldset class="starability-slot">
+                        <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+                        <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                        <label for="first-rate1" title="Terrible">1 star</label>
+                        <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                        <label for="first-rate2" title="Not good">2 stars</label>
+                        <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                        <label for="first-rate3" title="Average">3 stars</label>
+                        <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                        <label for="first-rate4" title="Very good">4 stars</label>
+                        <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                        <label for="first-rate5" title="Amazing">5 stars</label>
+                    </fieldset>
+                </div>
+                <div class="form-group">
+                    <label for="comment" class="form-label">Comment</label>
+                    <textarea id="comment" name="review[comment]" class="form-control" rows="4" placeholder="Share your experience…" required></textarea>
+                    <div class="invalid-feedback">Please add a comment.</div>
+                </div>
+                <button class="btn-primary-wander" type="submit">Post Review</button>
+            </form>
+        </div>
+    <% } else { %>
+        <div style="background:#f7f7f7;border-radius:var(--radius);padding:24px;margin-bottom:36px;text-align:center;">
+            <p style="color:var(--text-muted);margin-bottom:12px;">Want to leave a review?</p>
+            <a href="/login" class="btn-primary-wander" style="display:inline-flex;">Log in to review</a>
+        </div>
+    <% } %>
+
+    <!-- Reviews List -->
+    <% if(listing.reviews.length > 0) { %>
+        <h2 class="section-title">What guests are saying</h2>
+        <div class="review-grid">
+            <% for(let review of listing.reviews) { %>
+                <div class="review-card">
+                    <div class="review-author-row">
+                        <div class="review-author">
+                            <div class="review-avatar"><%= review.author.username.charAt(0).toUpperCase() %></div>
+                            <span class="review-username">@<%= review.author.username %></span>
+                        </div>
+                        <p class="starability-result mb-0" data-rating="<%= review.rating %>" style="transform:scale(0.6);transform-origin:right;"></p>
+                    </div>
+                    <p class="review-comment">"<%= review.comment %>"</p>
+                    <% if(currUser && (currUser._id.equals(review.author._id) || currUser.role === 'admin')) { %>
+                        <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                            <button class="table-btn table-btn-delete" type="submit">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    <% } else { %>
+        <p style="color:var(--text-muted);">No reviews yet. Be the first!</p>
+    <% } %>
+</div>
+
+<style>
+.booking-actions, .booking-prompt {
+    margin: 2rem 0;
+}
+
+.booking-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    text-align: center;
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.booking-card:hover {
+    border-color: var(--red);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.booking-price-info {
+    margin-bottom: 1rem;
+}
+
+.price-per-night {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--red);
+}
+
+.price-label {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.btn-book-now {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white;
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-book-now:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(232, 57, 77, 0.3);
+    color: white;
+}
+
+.booking-info {
+    margin-top: 1rem;
+}
+
+.booking-notice {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .booking-card {
+        margin: 1rem 0;
+    }
+    
+    .price-per-night {
+        font-size: 1.5rem;
+    }
+}
+</style>

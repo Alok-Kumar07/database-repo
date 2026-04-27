@@ -1,0 +1,100 @@
+<% layout("/layouts/boilerplate") %>
+
+<!-- Filter Bar -->
+<div class="filters-bar">
+    <a href="/listings" class="filter-item <%= typeof searchTerm === 'undefined' || !searchTerm ? 'active' : '' %>">
+        <i class="fa-solid fa-fire"></i>
+        <span>Trending</span>
+    </a>
+    <a href="/listings?category=rooms" class="filter-item">
+        <i class="fa-solid fa-bed"></i>
+        <span>Rooms</span>
+    </a>
+    <a href="/listings?category=cities" class="filter-item">
+        <i class="fa-solid fa-mountain-city"></i>
+        <span>Iconic Cities</span>
+    </a>
+    <a href="/listings?category=mountains" class="filter-item">
+        <i class="fa-solid fa-mountain"></i>
+        <span>Mountains</span>
+    </a>
+    <a href="/listings?category=castles" class="filter-item">
+        <i class="fa-brands fa-fort-awesome"></i>
+        <span>Castles</span>
+    </a>
+    <a href="/listings?category=pools" class="filter-item">
+        <i class="fa-solid fa-person-swimming"></i>
+        <span>Pools</span>
+    </a>
+    <a href="/listings?category=camping" class="filter-item">
+        <i class="fa-solid fa-campground"></i>
+        <span>Camping</span>
+    </a>
+    <a href="/listings?category=farms" class="filter-item">
+        <i class="fa-solid fa-cow"></i>
+        <span>Farms</span>
+    </a>
+    <a href="/listings?category=arctic" class="filter-item">
+        <i class="fa-regular fa-snowflake"></i>
+        <span>Arctic</span>
+    </a>
+    <a href="/listings?category=boats" class="filter-item">
+        <i class="fa-solid fa-ship"></i>
+        <span>Boats</span>
+    </a>
+
+    <div class="tax-toggle-wrap ms-auto">
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="taxSwitch">
+            <label class="form-check-label ms-2" for="taxSwitch" style="font-size:0.85rem;">Show price with taxes</label>
+        </div>
+    </div>
+</div>
+
+<% if(typeof searchTerm !== 'undefined' && searchTerm) { %>
+    <div style="max-width:1400px;margin:0 auto;padding:0 24px 8px;">
+        <p style="font-size:0.9rem;color:var(--text-muted);">
+            Showing results for "<strong><%= searchTerm %></strong>"
+            — <a href="/listings" style="color:var(--red);text-decoration:underline;">Clear</a>
+        </p>
+    </div>
+<% } %>
+
+<div class="listings-grid">
+    <% for(let listing of allListing){ %>
+        <a href="/listings/<%= listing._id %>" class="listing-card">
+            <div class="listing-card-inner">
+                <img src="<%= listing.image.url %>" class="listing-card-img" alt="<%= listing.title %>">
+                <div class="listing-card-body">
+                    <div class="listing-card-title"><%= listing.title %></div>
+                    <div class="listing-card-location"><%= listing.location %>, <%= listing.country %></div>
+                    <div class="listing-card-price">
+                        <strong>₹<%= listing.price.toLocaleString("en-IN") %></strong> night
+                        <span class="tax-info"> +18% GST</span>
+                    </div>
+                    <% if(listing.isVerified) { %>
+                        <div class="listing-verified-badge"><i class="fa-solid fa-circle-check"></i> Verified</div>
+                    <% } else { %>
+                        <div class="listing-pending-badge"><i class="fa-solid fa-clock"></i> Pending Verification</div>
+                    <% } %>
+                </div>
+            </div>
+        </a>
+    <% } %>
+
+    <% if(allListing.length === 0) { %>
+        <div style="grid-column:1/-1;text-align:center;padding:80px 0;color:var(--text-muted);">
+            <i class="fa-solid fa-magnifying-glass" style="font-size:2.5rem;margin-bottom:16px;display:block;"></i>
+            <h3 style="font-family:var(--font-display);font-weight:400;margin-bottom:8px;">No listings found</h3>
+            <p>Try a different search or <a href="/listings" style="color:var(--red);">browse all listings</a>.</p>
+        </div>
+    <% } %>
+</div>
+
+<script>
+document.getElementById("taxSwitch").addEventListener("change", function() {
+    document.querySelectorAll(".tax-info").forEach(el => {
+        el.style.display = this.checked ? "inline" : "none";
+    });
+});
+</script>

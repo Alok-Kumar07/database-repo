@@ -1,0 +1,327 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="booking-detail-card">
+                <div class="booking-header">
+                    <h2>Booking Confirmation</h2>
+                    <div class="booking-status">
+                        <span class="status-badge status-<%= booking.status %>">
+                            <%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="booking-content">
+                    <!-- Booking Information -->
+                    <div class="booking-info-section">
+                        <h4>Booking Details</h4>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Booking ID:</label>
+                                <span>#<%= booking._id.toString().slice(-8).toUpperCase() %></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Check-in:</label>
+                                <span><%= booking.checkIn.toLocaleDateString() %></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Check-out:</label>
+                                <span><%= booking.checkOut.toLocaleDateString() %></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Guests:</label>
+                                <span><%= booking.guests %> <%= booking.guests === 1 ? 'Guest' : 'Guests' %></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Nights:</label>
+                                <span><%= Math.ceil((booking.checkOut - booking.checkIn) / (1000 * 60 * 60 * 24)) %> nights</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Price:</label>
+                                <span class="price-highlight">$<%= booking.totalPrice %></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Information -->
+                    <div class="property-section">
+                        <h4>Property Information</h4>
+                        <div class="property-card">
+                            <div class="row align-items-center">
+                                <div class="col-md-4">
+                                    <img src="<%= booking.listing.image.url %>" alt="<%= booking.listing.title %>" class="img-fluid rounded">
+                                </div>
+                                <div class="col-md-8">
+                                    <h5><%= booking.listing.title %></h5>
+                                    <p class="text-muted mb-2">
+                                        <i class="fa-solid fa-location-dot me-2"></i><%= booking.listing.location %>, <%= booking.listing.country %>
+                                    </p>
+                                    <p><%= booking.listing.description %></p>
+                                    <div class="property-price">
+                                        <span>$<%= booking.listing.price %></span> per night
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Special Requests -->
+                    <% if (booking.specialRequests) { %>
+                    <div class="special-requests-section">
+                        <h4>Special Requests</h4>
+                        <div class="special-requests">
+                            <p><%= booking.specialRequests %></p>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- Payment Status -->
+                    <div class="payment-section">
+                        <h4>Payment Information</h4>
+                        <div class="payment-status">
+                            <div class="payment-info">
+                                <label>Payment Status:</label>
+                                <span class="payment-badge payment-<%= booking.paymentStatus %>">
+                                    <%= booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1) %>
+                                </span>
+                            </div>
+                            <div class="payment-info">
+                                <label>Total Amount:</label>
+                                <span class="price-highlight">$<%= booking.totalPrice %></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="booking-actions">
+                        <% if (booking.status === 'pending' && currUser && (booking.user._id.toString() === currUser._id.toString() || currUser.role === 'admin')) { %>
+                            <form action="/bookings/<%= booking._id %>/cancel" method="POST" class="d-inline">
+                                <button type="submit" class="btn-cancel-booking">
+                                    <i class="fa-solid fa-times-circle me-2"></i>Cancel Booking
+                                </button>
+                            </form>
+                        <% } %>
+                        
+                        <% if (currUser && currUser.role === 'admin') { %>
+                            <div class="admin-actions">
+                                <form action="/admin/bookings/<%= booking._id %>/status" method="POST" class="d-inline">
+                                    <select name="status" class="form-select form-select-sm d-inline-block w-auto me-2">
+                                        <option value="pending" <%= booking.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                        <option value="confirmed" <%= booking.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                                        <option value="completed" <%= booking.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                                        <option value="cancelled" <%= booking.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                    </select>
+                                    <button type="submit" class="btn-update-status">Update Status</button>
+                                </form>
+                            </div>
+                        <% } %>
+                        
+                        <a href="/listings/<%= booking.listing._id %>" class="btn-view-property">
+                            <i class="fa-solid fa-home me-2"></i>View Property
+                        </a>
+                        
+                        <% if (currUser && booking.user._id.toString() === currUser._id.toString()) { %>
+                            <a href="/bookings/user" class="btn-my-bookings">
+                                <i class="fa-solid fa-list me-2"></i>My Bookings
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.booking-detail-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.booking-header {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-header h2 {
+    margin: 0;
+    font-family: var(--font-display);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.status-pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #856404;
+}
+
+.status-confirmed {
+    background: rgba(40, 167, 69, 0.2);
+    color: #155724;
+}
+
+.status-cancelled {
+    background: rgba(220, 53, 69, 0.2);
+    color: #721c24;
+}
+
+.status-completed {
+    background: rgba(23, 162, 184, 0.2);
+    color: #0c5460;
+}
+
+.booking-content {
+    padding: 2rem;
+}
+
+.booking-info-section, .property-section, .special-requests-section, .payment-section {
+    margin-bottom: 2rem;
+}
+
+.booking-info-section h4, .property-section h4, .special-requests-section h4, .payment-section h4 {
+    color: var(--text);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.info-item label {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.price-highlight {
+    color: var(--red);
+    font-weight: 600;
+}
+
+.property-card {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem;
+}
+
+.property-price {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: var(--red);
+    font-weight: 600;
+}
+
+.special-requests {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.payment-status {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.payment-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.payment-info label {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.payment-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.payment-pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #856404;
+}
+
+.payment-paid {
+    background: rgba(40, 167, 69, 0.2);
+    color: #155724;
+}
+
+.payment-refunded {
+    background: rgba(220, 53, 69, 0.2);
+    color: #721c24;
+}
+
+.booking-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.btn-cancel-booking {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+.btn-update-status {
+    background: var(--dark);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+.btn-view-property, .btn-my-bookings {
+    background: var(--border);
+    color: var(--text);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-view-property:hover, .btn-my-bookings:hover {
+    background: var(--text-muted);
+    color: white;
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+}
+</style>

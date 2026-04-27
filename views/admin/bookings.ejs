@@ -1,0 +1,500 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="admin-header">
+                <h2>Booking Management</h2>
+                <p class="text-muted">Manage all hotel bookings and reservations</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="admin-stat-card">
+                <div class="stat-icon pending">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><%= pendingBookings.length %></div>
+                    <div class="stat-label">Pending Bookings</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-stat-card">
+                <div class="stat-icon confirmed">
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><%= confirmedBookings.length %></div>
+                    <div class="stat-label">Confirmed Bookings</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-stat-card">
+                <div class="stat-icon revenue">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">$<%= totalRevenue %></div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-stat-card">
+                <div class="stat-icon total">
+                    <i class="fa-solid fa-calendar"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><%= bookings.length %></div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="quick-actions">
+                <a href="/listings/admin/dashboard" class="action-btn">
+                    <i class="fa-solid fa-home me-2"></i>Properties
+                </a>
+                <a href="/admin/bookings" class="action-btn active">
+                    <i class="fa-solid fa-calendar-check me-2"></i>Bookings
+                </a>
+                <a href="/listings/new" class="action-btn">
+                    <i class="fa-solid fa-plus me-2"></i>New Property
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="bookings-table-card">
+                <div class="table-header">
+                    <h3>All Bookings</h3>
+                    <div class="filter-controls">
+                        <select class="form-select form-select-sm" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Property</th>
+                                <th>Guest</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Guests</th>
+                                <th>Total Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% bookings.forEach(booking => { %>
+                                <tr class="booking-row" data-status="<%= booking.status %>">
+                                    <td>
+                                        <span class="booking-id">#<%= booking._id.toString().slice(-8).toUpperCase() %></span>
+                                    </td>
+                                    <td>
+                                        <div class="property-info">
+                                            <img src="<%= booking.listing.image.url %>" alt="<%= booking.listing.title %>">
+                                            <div>
+                                                <div class="property-title"><%= booking.listing.title %></div>
+                                                <div class="property-location"><%= booking.listing.location %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="guest-info">
+                                            <div class="guest-name"><%= booking.user.username %></div>
+                                            <div class="guest-email"><%= booking.user.email %></div>
+                                        </div>
+                                    </td>
+                                    <td><%= booking.checkIn.toLocaleDateString() %></td>
+                                    <td><%= booking.checkOut.toLocaleDateString() %></td>
+                                    <td><%= booking.guests %></td>
+                                    <td><span class="price">$<%= booking.totalPrice %></span></td>
+                                    <td>
+                                        <span class="status-badge status-<%= booking.status %>">
+                                            <%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="/bookings/<%= booking._id %>" class="btn-view" title="View Details">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <button class="btn-edit" onclick="editBookingStatus('<%= booking._id %>', '<%= booking.status %>')" title="Edit Status">
+                                                <i class="fa-solid fa-edit"></i>
+                                            </button>
+                                            <a href="/listings/<%= booking.listing._id %>" class="btn-property" title="View Property">
+                                                <i class="fa-solid fa-home"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Status Modal -->
+<div class="modal fade" id="editStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Booking Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateStatusForm">
+                    <input type="hidden" id="bookingId" name="bookingId">
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label">New Status</label>
+                        <select class="form-select" id="newStatus" name="status" required>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="updateStatusForm" class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Status filter
+    const statusFilter = document.getElementById('statusFilter');
+    const bookingRows = document.querySelectorAll('.booking-row');
+    
+    statusFilter.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        
+        bookingRows.forEach(row => {
+            if (selectedStatus === '' || row.dataset.status === selectedStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // Edit status modal
+    window.editBookingStatus = function(bookingId, currentStatus) {
+        document.getElementById('bookingId').value = bookingId;
+        document.getElementById('newStatus').value = currentStatus;
+        
+        const modal = new bootstrap.Modal(document.getElementById('editStatusModal'));
+        modal.show();
+    };
+    
+    // Update status form
+    document.getElementById('updateStatusForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const bookingId = document.getElementById('bookingId').value;
+        const newStatus = document.getElementById('newStatus').value;
+        
+        const form = this;
+        const formData = new FormData(form);
+        
+        fetch(`/admin/bookings/${bookingId}/status`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error updating booking status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating booking status');
+        });
+    });
+});
+</script>
+
+<style>
+.admin-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-header h2 {
+    font-family: var(--font-display);
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.admin-stat-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-icon.pending {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+}
+
+.stat-icon.confirmed {
+    background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+.stat-icon.revenue {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+.stat-icon.total {
+    background: linear-gradient(135deg, #6f42c1, #59359a);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.action-btn {
+    background: white;
+    color: var(--text);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.action-btn.active {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white;
+}
+
+.bookings-table-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.table-header h3 {
+    margin: 0;
+    color: var(--text);
+}
+
+.filter-controls {
+    width: 200px;
+}
+
+.bookings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bookings-table th {
+    background: var(--bg);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    border-bottom: 2px solid var(--border);
+}
+
+.bookings-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.booking-id {
+    font-family: monospace;
+    background: var(--bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.property-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.property-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.property-title {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.property-location {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.guest-name {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.guest-email {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.price {
+    font-weight: 600;
+    color: var(--red);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.status-pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #856404;
+}
+
+.status-confirmed {
+    background: rgba(40, 167, 69, 0.2);
+    color: #155724;
+}
+
+.status-cancelled {
+    background: rgba(220, 53, 69, 0.2);
+    color: #721c24;
+}
+
+.status-completed {
+    background: rgba(23, 162, 184, 0.2);
+    color: #0c5460;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-buttons button, .action-buttons a {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.action-buttons button:hover, .action-buttons a:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+@media (max-width: 768px) {
+    .quick-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-btn {
+        width: 200px;
+        justify-content: center;
+    }
+    
+    .bookings-table {
+        font-size: 0.875rem;
+    }
+    
+    .property-info, .guest-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>

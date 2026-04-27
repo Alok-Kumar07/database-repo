@@ -1,0 +1,332 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="booking-card">
+                <div class="booking-header">
+                    <h2>Book Your Stay</h2>
+                    <p class="text-muted">Complete the details below to confirm your booking</p>
+                </div>
+
+                <div class="booking-content">
+                    <!-- Listing Summary -->
+                    <div class="listing-summary mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <img src="<%= listing.image.url %>" alt="<%= listing.title %>" class="img-fluid rounded">
+                            </div>
+                            <div class="col-md-8">
+                                <h4><%= listing.title %></h4>
+                                <p class="text-muted mb-2">
+                                    <i class="fa-solid fa-location-dot me-2"></i><%= listing.location %>, <%= listing.country %>
+                                </p>
+                                <div class="price-display">
+                                    <span class="price-amount">$<%= listing.price %></span>
+                                    <span class="price-unit">per night</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <form action="/listings/<%= listing._id %>/book" method="POST" id="bookingForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="checkIn" class="form-label">Check-in Date</label>
+                                    <input type="date" class="form-control" id="checkIn" name="booking[checkIn]" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="checkOut" class="form-label">Check-out Date</label>
+                                    <input type="date" class="form-control" id="checkOut" name="booking[checkOut]" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="guests" class="form-label">Number of Guests</label>
+                                    <select class="form-select" id="guests" name="booking[guests]" required>
+                                        <option value="">Select guests</option>
+                                        <% for(let i = 1; i <= 10; i++) { %>
+                                            <option value="<%= i %>"><%= i %> <%= i === 1 ? 'Guest' : 'Guests' %></option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Total Price</label>
+                                    <div class="total-price-display">
+                                        <span class="total-amount" id="totalPrice">$0</span>
+                                        <span class="total-nights" id="totalNights">0 nights</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="specialRequests" class="form-label">Special Requests (Optional)</label>
+                            <textarea class="form-control" id="specialRequests" name="booking[specialRequests]" rows="3" 
+                                placeholder="Any special requests or preferences..."></textarea>
+                        </div>
+
+                        <!-- Price Summary -->
+                        <div class="price-summary">
+                            <h5>Price Details</h5>
+                            <div class="price-breakdown">
+                                <div class="price-row">
+                                    <span>$<%= listing.price %> x <span id="nightCount">0</span> nights</span>
+                                    <span id="subtotal">$0</span>
+                                </div>
+                                <div class="price-row">
+                                    <span>Service fee</span>
+                                    <span id="serviceFee">$0</span>
+                                </div>
+                                <div class="price-row total">
+                                    <span>Total</span>
+                                    <span id="finalTotal">$0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="booking-actions">
+                            <button type="submit" class="btn-book-now" id="submitBtn">
+                                <i class="fa-solid fa-calendar-check me-2"></i>
+                                <span id="btnText">Complete Booking</span>
+                            </button>
+                            <a href="/listings/<%= listing._id %>" class="btn-cancel">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInInput = document.getElementById('checkIn');
+    const checkOutInput = document.getElementById('checkOut');
+    const guestsSelect = document.getElementById('guests');
+    const pricePerNight = <%- JSON.stringify(listing.price) %>;
+    const bookingForm = document.getElementById('bookingForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    checkInInput.min = today;
+    checkOutInput.min = today;
+    
+    function calculateTotal() {
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+        const guests = parseInt(guestsSelect.value) || 0;
+        
+        if (checkIn && checkOut && checkOut > checkIn && guests > 0) {
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+            const subtotal = nights * pricePerNight;
+            const serviceFee = Math.round(subtotal * 0.1); // 10% service fee
+            const total = subtotal + serviceFee;
+            
+            document.getElementById('nightCount').textContent = nights;
+            document.getElementById('totalNights').textContent = nights + ' nights';
+            document.getElementById('subtotal').textContent = '$' + subtotal;
+            document.getElementById('serviceFee').textContent = '$' + serviceFee;
+            document.getElementById('finalTotal').textContent = '$' + total;
+            document.getElementById('totalPrice').textContent = '$' + total;
+        } else {
+            document.getElementById('nightCount').textContent = '0';
+            document.getElementById('totalNights').textContent = '0 nights';
+            document.getElementById('subtotal').textContent = '$0';
+            document.getElementById('serviceFee').textContent = '$0';
+            document.getElementById('finalTotal').textContent = '$0';
+            document.getElementById('totalPrice').textContent = '$0';
+        }
+    }
+    
+    function validateForm() {
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+        const guests = parseInt(guestsSelect.value) || 0;
+        
+        if (!checkInInput.value || !checkOutInput.value) {
+            alert('Please select both check-in and check-out dates');
+            return false;
+        }
+        
+        if (checkOut <= checkIn) {
+            alert('Check-out date must be after check-in date');
+            return false;
+        }
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (checkIn < today) {
+            alert('Check-in date cannot be in the past');
+            return false;
+        }
+        
+        if (guests < 1 || guests > 10) {
+            alert('Number of guests must be between 1 and 10');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Form submission
+    bookingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Processing...';
+        
+        // Submit form
+        this.submit();
+    });
+    
+    checkInInput.addEventListener('change', function() {
+        checkOutInput.min = checkInInput.value;
+        if (checkOutInput.value && checkOutInput.value <= checkInInput.value) {
+            const nextDay = new Date(checkInInput.value);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkOutInput.value = nextDay.toISOString().split('T')[0];
+        }
+        calculateTotal();
+    });
+    
+    checkOutInput.addEventListener('change', calculateTotal);
+    guestsSelect.addEventListener('change', calculateTotal);
+});
+</script>
+
+<style>
+.booking-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.booking-header {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.booking-header h2 {
+    margin: 0;
+    font-family: var(--font-display);
+}
+
+.booking-content {
+    padding: 2rem;
+}
+
+.listing-summary {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem;
+}
+
+.price-display {
+    margin-top: 1rem;
+}
+
+.price-amount {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--red);
+}
+
+.price-unit {
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+}
+
+.total-price-display {
+    background: var(--red-light);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.total-amount {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--red);
+    display: block;
+}
+
+.total-nights {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.price-summary {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.price-breakdown .price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.price-breakdown .price-row.total {
+    border-top: 2px solid var(--border);
+    padding-top: 0.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.booking-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-book-now {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.btn-book-now:hover {
+    transform: translateY(-2px);
+}
+
+.btn-cancel {
+    background: var(--border);
+    color: var(--text);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+.btn-cancel:hover {
+    background: var(--text-muted);
+    color: white;
+}
+</style>

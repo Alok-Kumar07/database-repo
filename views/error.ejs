@@ -1,0 +1,10 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="error-page">
+    <div class="error-code"><%= err.statusCode || 500 %></div>
+    <h2 style="font-family:var(--font-display);font-weight:400;margin-bottom:12px;"><%= err.message || "Something went wrong" %></h2>
+    <p class="error-message">The page you're looking for doesn't exist or an error occurred.</p>
+    <a href="/listings" class="btn-primary-wander" style="display:inline-flex;margin:0 auto;">
+        <i class="fa-solid fa-house me-2"></i> Back to Home
+    </a>
+</div>
