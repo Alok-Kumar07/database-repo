@@ -5,7 +5,7 @@ module.exports.index = async (req, res) => {
     let query = {};
     if (search && search.trim()) {
         const regex = new RegExp(search.trim(), 'i');
-        query = { ₹or: [{ title: regex }, { location: regex }, { country: regex }] };
+        query = { $or: [{ title: regex }, { location: regex }, { country: regex }] };
     }
     const allListing = await Listing.find(query);
     res.render("listings/index", { allListing, searchTerm: search || '' });
