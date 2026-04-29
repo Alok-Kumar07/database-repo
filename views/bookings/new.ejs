@@ -22,7 +22,7 @@
                                     <i class="fa-solid fa-location-dot me-2"></i><%= listing.location %>, <%= listing.country %>
                                 </p>
                                 <div class="price-display">
-                                    <span class="price-amount">$<%= listing.price %></span>
+                                    <span class="price-amount">₹<%= listing.price %></span>
                                     <span class="price-unit">per night</span>
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Total Price</label>
                                     <div class="total-price-display">
-                                        <span class="total-amount" id="totalPrice">$0</span>
+                                        <span class="total-amount" id="totalPrice">₹0</span>
                                         <span class="total-nights" id="totalNights">0 nights</span>
                                     </div>
                                 </div>
@@ -80,16 +80,16 @@
                             <h5>Price Details</h5>
                             <div class="price-breakdown">
                                 <div class="price-row">
-                                    <span>$<%= listing.price %> x <span id="nightCount">0</span> nights</span>
-                                    <span id="subtotal">$0</span>
+                                    <span>₹<%= listing.price %> x <span id="nightCount">0</span> nights</span>
+                                    <span id="subtotal">₹0</span>
                                 </div>
                                 <div class="price-row">
                                     <span>Service fee</span>
-                                    <span id="serviceFee">$0</span>
+                                    <span id="serviceFee">₹0</span>
                                 </div>
                                 <div class="price-row total">
                                     <span>Total</span>
-                                    <span id="finalTotal">$0</span>
+                                    <span id="finalTotal">₹0</span>
                                 </div>
                             </div>
                         </div>
@@ -136,17 +136,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.getElementById('nightCount').textContent = nights;
             document.getElementById('totalNights').textContent = nights + ' nights';
-            document.getElementById('subtotal').textContent = '$' + subtotal;
-            document.getElementById('serviceFee').textContent = '$' + serviceFee;
-            document.getElementById('finalTotal').textContent = '$' + total;
-            document.getElementById('totalPrice').textContent = '$' + total;
+            document.getElementById('subtotal').textContent = '₹' + subtotal;
+            document.getElementById('serviceFee').textContent = '₹' + serviceFee;
+            document.getElementById('finalTotal').textContent = '₹' + total;
+            document.getElementById('totalPrice').textContent = '₹' + total;
         } else {
             document.getElementById('nightCount').textContent = '0';
             document.getElementById('totalNights').textContent = '0 nights';
-            document.getElementById('subtotal').textContent = '$0';
-            document.getElementById('serviceFee').textContent = '$0';
-            document.getElementById('finalTotal').textContent = '$0';
-            document.getElementById('totalPrice').textContent = '$0';
+            document.getElementById('subtotal').textContent = '₹0';
+            document.getElementById('serviceFee').textContent = '₹0';
+            document.getElementById('finalTotal').textContent = '₹0';
+            document.getElementById('totalPrice').textContent = '₹0';
         }
     }
     

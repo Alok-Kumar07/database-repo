@@ -40,7 +40,7 @@
                     <i class="fa-solid fa-dollar-sign"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">$<%= totalRevenue %></div>
+                    <div class="stat-number">₹<%= totalRevenue %></div>
                     <div class="stat-label">Total Revenue</div>
                 </div>
             </div>
@@ -131,7 +131,7 @@
                                     <td><%= booking.checkIn.toLocaleDateString() %></td>
                                     <td><%= booking.checkOut.toLocaleDateString() %></td>
                                     <td><%= booking.guests %></td>
-                                    <td><span class="price">$<%= booking.totalPrice %></span></td>
+                                    <td><span class="price">₹<%= booking.totalPrice %></span></td>
                                     <td>
                                         <span class="status-badge status-<%= booking.status %>">
                                             <%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const form = this;
         const formData = new FormData(form);
         
-        fetch(`/admin/bookings/${bookingId}/status`, {
+        fetch(`/admin/bookings/₹{bookingId}/status`, {
             method: 'POST',
             body: formData
         })

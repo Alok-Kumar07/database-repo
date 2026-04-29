@@ -9,7 +9,7 @@ module.exports.signup = async(req, res, next) => {
         const registerUser = await User.register(newUser, password);
         req.login(registerUser, (err) => {
             if (err) return next(err);
-            req.flash("success", `Welcome to Wander, ${username}! You are registered as ${assignedRole}.`);
+            req.flash("success", `Welcome to Wander, ₹{username}! You are registered as ₹{assignedRole}.`);
             res.redirect("/listings");
         });
     } catch (error) {
@@ -28,7 +28,7 @@ module.exports.renderLoginForm = (req, res) => {
 
 module.exports.login = async(req, res) => {
     const role = req.user.role;
-    req.flash("success", `Welcome back, ${req.user.username}! ${role === 'admin' ? '⚡ You are logged in as Admin.' : ''}`);
+    req.flash("success", `Welcome back, ₹{req.user.username}! ₹{role === 'admin' ? '⚡ You are logged in as Admin.' : ''}`);
     let redirectUrl = res.locals.redirectUrl || "/listings";
     res.redirect(redirectUrl);
 }

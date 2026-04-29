@@ -43,7 +43,7 @@
                         <div class="stat-label">Completed</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">$<%= bookings.reduce((sum, b) => sum + b.totalPrice, 0) %></div>
+                        <div class="stat-number">₹<%= bookings.reduce((sum, b) => sum + b.totalPrice, 0) %></div>
                         <div class="stat-label">Total Spent</div>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                                 </div>
 
                                 <div class="booking-price">
-                                    <span class="price-amount">$<%= booking.totalPrice %></span>
+                                    <span class="price-amount">₹<%= booking.totalPrice %></span>
                                     <span class="price-label">Total Price</span>
                                 </div>
 
