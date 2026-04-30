@@ -39,7 +39,7 @@ const validateBooking = (req, res, next) => {
         if (errors.length > 0) {
             console.log("Validation errors:", errors);
             req.flash("error", errors.join(", "));
-            return res.redirect(`/listings/₹{req.params.id}/book`);
+            return res.redirect(`/listings/${req.params.id}/book`);
         }
         
         console.log("Validation passed");
@@ -47,7 +47,7 @@ const validateBooking = (req, res, next) => {
     } catch (error) {
         console.error("Validation error:", error);
         req.flash("error", "Validation failed. Please check your input.");
-        res.redirect(`/listings/₹{req.params.id}/book`);
+        res.redirect(`/listings/${req.params.id}/book`);
     }
 };
 

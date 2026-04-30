@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const form = this;
         const formData = new FormData(form);
         
-        fetch(`/admin/bookings/₹{bookingId}/status`, {
+        fetch(`/admin/bookings/${bookingId}/status`, {
             method: 'POST',
             body: formData
         })

@@ -57,7 +57,7 @@ module.exports.updateListing = async(req, res) => {
         await listing.save();
     }
     req.flash("success", "Listing updated successfully!");
-    res.redirect(`/listings/₹{id}`);
+    res.redirect(`/listings/${id}`);
 }
 
 module.exports.deleteListing = async(req, res) => {
@@ -71,14 +71,14 @@ module.exports.verifyListing = async(req, res) => {
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { isVerified: true });
     req.flash("success", "Listing verified successfully!");
-    res.redirect(`/listings/₹{id}`);
+    res.redirect(`/listings/${id}`);
 }
 
 module.exports.unverifyListing = async(req, res) => {
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { isVerified: false });
     req.flash("success", "Listing unverified.");
-    res.redirect(`/listings/₹{id}`);
+    res.redirect(`/listings/${id}`);
 }
 
 module.exports.adminDashboard = async(req, res) => {

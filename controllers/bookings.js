@@ -30,7 +30,7 @@ module.exports.createBooking = async (req, res, next) => {
         
         if (!checkIn || !checkOut || !guests) {
             req.flash("error", "Please fill in all required fields");
-            return res.redirect(`/listings/₹{id}/book`);
+            return res.redirect(`/listings/${id}/book`);
         }
 
         // Calculate total price
@@ -40,7 +40,7 @@ module.exports.createBooking = async (req, res, next) => {
         
         if (nights <= 0) {
             req.flash("error", "Check-out date must be after check-in date");
-            return res.redirect(`/listings/₹{id}/book`);
+            return res.redirect(`/listings/${id}/book`);
         }
 
         const totalPrice = nights * listing.price;
@@ -80,11 +80,11 @@ module.exports.createBooking = async (req, res, next) => {
         await newBooking.save();
         console.log("Booking saved successfully:", newBooking._id);
         req.flash("success", "Booking created successfully! Your booking is pending confirmation.");
-        res.redirect(`/bookings/₹{newBooking._id}`);
+        res.redirect(`/bookings/${newBooking._id}`);
     } catch (error) {
         console.error("Booking creation error:", error);
         req.flash("error", "Failed to create booking. Please try again.");
-        res.redirect(`/listings/₹{req.params.id}/book`);
+        res.redirect(`/listings/${req.params.id}/book`);
     }
 };
 
@@ -182,7 +182,7 @@ module.exports.updateBookingStatus = async (req, res) => {
         return res.redirect("/admin/bookings");
     }
 
-    req.flash("success", `Booking status updated to ₹{status}`);
+    req.flash("success", `Booking status updated to ${status}`);
     res.redirect("/admin/bookings");
 };
 
